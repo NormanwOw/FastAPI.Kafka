@@ -1,6 +1,7 @@
-from src.config import Settings
+from src.config import Settings, settings
 from src.domain.entites import Message
-from src.infrastructure.broker import MyKafkaBroker
+from src.infrastructure.broker import MyKafkaBroker, broker
+from src.infrastructure.logger.impl import logger
 from src.infrastructure.logger.interfaces import ILogger
 
 
@@ -15,7 +16,7 @@ class Consumer:
         )
         self.logger = logger
 
-    async def start_listen(self):
+    async def start(self):
         await self.broker.try_to_connect()
         await self.subscriber.start()
         async for message in self.subscriber:
@@ -27,3 +28,6 @@ class Consumer:
             except Exception:
                 self.logger.error(f'Error processing message {message}')
                 await message.nack()
+
+
+consumer = Consumer(broker, settings, logger)

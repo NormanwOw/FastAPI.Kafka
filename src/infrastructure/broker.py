@@ -3,15 +3,22 @@ import asyncio
 from aiokafka.errors import KafkaConnectionError
 from faststream.kafka import KafkaBroker
 
-from src.config import KAFKA_URL, settings, Settings
+from src.config import settings, Settings
 from src.infrastructure.logger.impl import logger
 from src.infrastructure.logger.interfaces import ILogger
 
 
 class MyKafkaBroker(KafkaBroker):
 
-    def __init__(self, url: str, settings: Settings, logger: ILogger):
-        super().__init__(url)
+    def __init__(self, settings: Settings, logger: ILogger):
+        super().__init__(
+            bootstrap_servers=settings.KAFKA_HOSTS,
+            enable_idempotence=True,
+            acks='all',
+            transactional_id='my-app-tx-1',
+            transaction_timeout_ms=60000,
+            client_id=settings.KAFKA_CLIENT_ID,
+        )
         self.settings = settings
         self.logger = logger
         self.new_publisher = self.publisher(self.settings.KAFKA_TOPIC)
@@ -30,4 +37,4 @@ class MyKafkaBroker(KafkaBroker):
         return self.new_publisher
 
 
-broker = MyKafkaBroker(KAFKA_URL, settings, logger)
+broker = MyKafkaBroker(settings, logger)

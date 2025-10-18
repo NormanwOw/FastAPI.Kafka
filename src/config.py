@@ -7,12 +7,11 @@ class Settings(BaseSettings):
         env_file_encoding='utf-8'
     )
 
-    KAFKA_HOST: str
-    KAFKA_PORT: int
+    KAFKA_HOSTS: list[str]
     KAFKA_TOPIC: str
     KAFKA_GROUP: str
+    KAFKA_CLIENT_ID: str
 
 
 settings = Settings()
 
-KAFKA_URL = f'{settings.KAFKA_HOST}:{settings.KAFKA_PORT}'
